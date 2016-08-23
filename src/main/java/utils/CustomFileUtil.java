@@ -12,7 +12,7 @@ import java.net.URL;
  * 
  * @ClassName CustomFileUtil
  * @Description 处理与文件操作相关的工具类
- * @author rongyang_lu
+ * @author lou
  * @date 2015年8月13日 下午2:39:27
  */
 public final class CustomFileUtil {

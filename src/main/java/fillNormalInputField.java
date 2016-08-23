@@ -31,7 +31,7 @@ public class fillNormalInputField {
 	private static void login(String imagePath, HtmlPage page) throws IOException {
 		String username = "";
 		String password = "";
-		String captchaString = new CaptchaIdentify().identify(imagePath);
+		String captchaString = new CaptchaIdentify(imagePath).identify();
 
 		String formId = "form1";
 		final HtmlForm loginForm = (HtmlForm) page.<HtmlForm> getElementById(formId);

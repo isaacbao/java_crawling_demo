@@ -21,7 +21,6 @@ public class AutoLogin {
 			String filePath = file.getAbsolutePath() + "/" + fileName;
 			System.out.println(filePath);
 			CaptchaIdentify captchaIdentifier = new CaptchaIdentify(filePath);
-			captchaIdentifier.identifyLiepin();
 		}
 	}
 }

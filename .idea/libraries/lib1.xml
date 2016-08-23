@@ -1,0 +1,18 @@
+<component name="libraryTable">
+  <library name="lib1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/lib/commons-logging-1.1.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lib/jai_imageio.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lib/log4j-1.2.17.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lib/itext-2.1.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lib/jna.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lib/xmlgraphics-commons-1.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lib/commons-io-2.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lib/junit-4.10.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lib/ghost4j-0.5.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lib/commons-beanutils-1.9.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -330,7 +330,7 @@ public class CaptchaIdentify {
      * @param image 要识别的验证码
      * @return 验证码图片
      */
-    public String identify(BufferedImage image) {
+    public String identify(BufferedImage image) throws Exception {
 
         Tesseract instance = initialTesseractInstance();
 
@@ -350,19 +350,19 @@ public class CaptchaIdentify {
     /**
      * @return
      */
-    public Tesseract initialTesseractInstance() {
+    public Tesseract initialTesseractInstance() throws Exception {
         Tesseract instance = new Tesseract();
-        URL url = this.getClass().getClassLoader().getResource("/");
-        String dir;
+        URL url = getClass().getClassLoader().getResource("tessdata");
+
         if (null == url) {
-            url = this.getClass().getClassLoader().getResource(".");
+            throw new Exception("tess配置文件加载失败");
         }
-        dir = url.getPath();
+        String dir = url.getPath();
         // String system_name = System.getProperty("os.name");
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
             dir = dir.substring(1);
         }
-        instance.setDatapath(dir + "tessdata");
+        instance.setDatapath(dir);// + "tessdata"
         return instance;
     }
 
@@ -372,7 +372,7 @@ public class CaptchaIdentify {
      * @param filePath 要识别的验证码图片地址
      * @return 验证码
      */
-    public String identify(String filePath) {
+    public String identify(String filePath) throws Exception {
         File imageFile = new File(filePath);
         Tesseract instance = initialTesseractInstance();
 
@@ -422,7 +422,7 @@ public class CaptchaIdentify {
      * @return 识别结果
      * @throws IOException
      */
-    public String identify() throws IOException {
+    public String identify() throws Exception {
         this.weightGraying(this.openImage(originImageDir + File.separator + imageName));
         this.binaryzation(this.openImage(grayImageDir + File.separator + imageName));
         this.removeBorderNoise(this.openImage(binaryImageDir + File.separator + imageName));

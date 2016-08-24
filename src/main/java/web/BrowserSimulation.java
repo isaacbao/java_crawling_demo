@@ -30,15 +30,6 @@ import utils.CustomStringUtils;
 public class BrowserSimulation {
 	private WebClient webClient = new WebClient();
 
-	/**
-	 * ��һ����SSL���ܵ���ҳ����https�� Open a webpage with SSL(like https)
-	 * 
-	 * @param targetURL
-	 *            Ŀ����ҳ��URL
-	 * @return �ɹ��򿪵���ҳ
-	 * @throws IOException
-	 * @throws MalformedURLException
-	 */
 	public HtmlPage openPageWithSSL(String targetURL) throws IOException, MalformedURLException {
 		webClient.getOptions().setUseInsecureSSL(true);
 		final HtmlPage page = webClient.getPage(targetURL);
@@ -46,29 +37,11 @@ public class BrowserSimulation {
 		return page;
 	}
 
-	/**
-	 * ��ȡ��¼���
-	 * 
-	 * @param page
-	 *            ��ǰ��¼ҳ��
-	 * @param formId
-	 *            ��¼����id
-	 * @return ��¼��
-	 */
 	public HtmlForm getLoginForm(HtmlPage page, String formId) {
 		final HtmlForm loginForm = (HtmlForm) page.<HtmlForm> getElementById(formId);
 		return loginForm;
 	}
 
-	/**
-	 * ��д��¼��
-	 * 
-	 * @param loginFormInfomation
-	 *            ��¼��Ϣ
-	 * @param loginForm
-	 *            ��¼��
-	 * @throws IOException
-	 */
 	public void fillLoginForm(Map<String, String> loginFormInfomation, HtmlForm loginForm) throws IOException {
 
 		fillNormalInputField("LoginName", loginFormInfomation.get("username"), loginForm);
@@ -77,45 +50,17 @@ public class BrowserSimulation {
 
 	}
 
-	/**
-	 * ��д��ͨ�����
-	 * 
-	 * @param fieldName
-	 *            ����������
-	 * @param content
-	 *            Ҫ��д������
-	 * @param loginForm
-	 *            ����������ĵ�¼��
-	 */
 	public void fillNormalInputField(String fieldName, String content, final HtmlForm loginForm) {
 		final HtmlTextInput field = loginForm.getInputByName(fieldName);
 		field.setValueAttribute(content);
 	}
 
-	/**
-	 * ��д���������
-	 * 
-	 * @param fieldName
-	 *            ����������
-	 * @param content
-	 *            Ҫ��д������
-	 * @param loginForm
-	 *            ����������ĵ�¼��
-	 */
 	public void fillPasswordInputField(String fieldName, String content, final HtmlForm loginForm) {
 		final HtmlPasswordInput field = loginForm.getInputByName(fieldName);
 		field.setValueAttribute(content);
 	}
 
 	/**
-	 * ����ͼƬ
-	 * 
-	 * @param page
-	 *            ͼƬ����ҳ��
-	 * @param imgId
-	 *            ͼƬ��id
-	 * @param savePath
-	 *            ����ͼƬ�ı���·��
 	 * @throws IOException
 	 */
 	public void saveImage(HtmlPage page, String imgId, String savePath) throws IOException {
@@ -125,9 +70,6 @@ public class BrowserSimulation {
 	}
 	
 	/**
-	 * ������֤��
-	 * @param imagePath ��֤��ͼƬ��ַ
-	 * @return ��֤��
 	 */
 	private static String artificialPerception(String imagePath) {
 		JFrame imageFrame = new ImageViewerFrame(imagePath);
@@ -139,17 +81,10 @@ public class BrowserSimulation {
 
 
 	/**
-	 * ���Խ���һ�ε�¼
-	 * 
+	 *
 	 * @param imagePath
-	 *            ��֤��ͼƬ�ĵ�ַ
-	 * @param browserSimulation
-	 *            ģ�������
 	 * @param page
-	 *            ��ǰ��¼ҳ��
 	 * @param isArtificialPerception
-	 *            �Ƿ�������֤��
-	 * @return �����¼��ť���ҳ��
 	 * @throws IOException
 	 */
 	public HtmlPage tryOnceLogin(String imagePath, HtmlPage page,
@@ -171,7 +106,6 @@ public class BrowserSimulation {
 			CaptchaIdentify captchaIdentifier = new CaptchaIdentify(imagePath);
 			captcha = captchaIdentifier.identify();
 			if (!CustomStringUtils.isCaptcha(captcha)) {
-				// TODO ���ԼӸ����������һ��,Ȼ�����Զ�ʶ��һ�£�������
 				captcha = artificialPerception(imagePath);
 			}
 			loginFormInfomation.put("captcha", captcha);
@@ -186,11 +120,6 @@ public class BrowserSimulation {
 	}
 	
 	/**
-	 * �����Զ���¼
-	 * @param imagePath ����洢��֤���ͼƬ��ַ
-	 * @param page ��½ҳ��
-	 * @param try_times �Զ�ʶ����֤��Ĵ��� 
-	 * @return
 	 * @throws IOException
 	 */
 	public HtmlPage tryAutoLogin(String imagePath,
@@ -198,7 +127,6 @@ public class BrowserSimulation {
 			throws IOException {
 		HtmlPage pageAfterClick = tryOnceLogin(imagePath, page, false);
 
-		//���ڹ涨�������޷���ȷʶ����֤�룬�����û�������֤��
 		for (int i = 0; (i < try_times) && (pageAfterClick.asText().contains("��֤�����")); i++) {
 			System.out.println("���Ե�" + (i + 2) + "���Զ�ʶ��");
 			pageAfterClick = tryOnceLogin(imagePath, pageAfterClick, false);

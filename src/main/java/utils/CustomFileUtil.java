@@ -82,15 +82,23 @@ public final class CustomFileUtil {
 		os.close();
 	}
 
+//	public static String getRootPath() {
+//		String tomcat_path = System.getProperty("catalina.base");
+//
+//		// Logger.getLogger("FILE").error("tomcat_path:" + tomcat_path);
+//		if (CustomStringUtils.isEmpty(tomcat_path)) {
+//			return "";
+//		}
+//
+//		return tomcat_path + File.separator+"crawlingDemo";
+//
+//	}
+
 	public static String getRootPath() {
-		String tomcat_path = System.getProperty("catalina.base");
 
-		// Logger.getLogger("FILE").error("tomcat_path:" + tomcat_path);
-		if (CustomStringUtils.isEmpty(tomcat_path)) {
-			return "";
-		}
-
-		return tomcat_path + File.separator+"crawlingDemo";
+		return "G:\\ws_cloud-backup\\temp";
 
 	}
+
+
 }

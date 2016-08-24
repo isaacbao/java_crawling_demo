@@ -11,33 +11,12 @@ import org.junit.Test;
 import utils.CustomFileUtil;
 
 public class CaptchaIdentifyTest {
-	String originImagePath = "E:\\captchaImage\\code.gif";
-	CaptchaIdentify captchaIdentifier;
-
-	@BeforeClass
-	public static void setUpClass() throws Exception {
-	}
-
-	@AfterClass
-	public static void tearDownClass() throws Exception {
-	}
-
-	@Before
-	public void setUp() throws IOException {
-		captchaIdentifier = new CaptchaIdentify(originImagePath);
-		// captchaIdentifier = new CaptchaIdentify(originImagePath,
-		// grayImagePath, binaryImagePath);
-	}
-
-	@After
-	public void tearDown() {
-	}
-
-
 	@Test
 	public void batchTestTrueIdentify() throws Exception {
-		String dirPath = CustomFileUtil.getRootPath();
+		String dirPath = CustomFileUtil.getRootPath()+File.separator+ "captchaDir";
 		File dir = new File(dirPath);
+		boolean canRead = dir.canRead();
+		String path = dir.getAbsolutePath();
 		File[] files = dir.listFiles();
 		String[] fileNames = dir.list();
 
@@ -47,8 +26,7 @@ public class CaptchaIdentifyTest {
 			if (files[i].isDirectory()) {
 				continue;
 			}
-			captchaIdentifier = new CaptchaIdentify(dirPath + File.separator
-					+ fileNames[i]);
+			CaptchaIdentify captchaIdentifier = new CaptchaIdentify(fileNames[i]);
 			captchaIdentifier.identify();
 		}
 	}

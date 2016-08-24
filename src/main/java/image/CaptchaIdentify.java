@@ -182,10 +182,8 @@ public class CaptchaIdentify {
     /**
      * 统计频率最高的5种颜色
      *
-     * @param statisticMap
      * @return
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
     private TreeMap<Integer, Integer> getTopFiveColor(
             Map<Integer, Integer> statisticMap) {
         MapValueComparator mapValueComparator = new MapValueComparator(
@@ -370,7 +368,6 @@ public class CaptchaIdentify {
      * 进行验证码识别
      *
      * @param filePath 要识别的验证码图片地址
-     * @return 验证码
      */
     public String identify(String filePath) throws Exception {
         File imageFile = new File(filePath);
@@ -393,7 +390,7 @@ public class CaptchaIdentify {
      * 对识别出来的验证码字符串进行处理，去除空格和换行符等无意义字符，以及判断字符串是否四位英文数字
      *
      * @param result 验证码字符串
-     * @return 处理后的验证码字符串
+     * @return 处理后的验证码字符串，若是识别失败，FAIL
      */
     private String postProcessResult(String result) {
         int length = result.length();
@@ -419,8 +416,7 @@ public class CaptchaIdentify {
     /**
      * 进行验证码识别
      *
-     * @return 识别结果
-     * @throws IOException
+     * @return 识别结果，若是识别失败，FAIL
      */
     public String identify() throws Exception {
         this.weightGraying(this.openImage(originImageDir + File.separator + imageName));

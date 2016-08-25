@@ -1,48 +1,46 @@
-import image.CaptchaIdentify;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.*;
+import utils.CustomFileUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.List;
 
-import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlButtonInput;
-import com.gargoylesoftware.htmlunit.html.HtmlForm;
-import com.gargoylesoftware.htmlunit.html.HtmlImage;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.html.HtmlPasswordInput;
-import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
+/**
+ * Created by rongyang_lu on 2016/8/25.
+ */
+public class crawlZhilian {
+    private static String SEARCH_PAGE_URL = "https://passport.zhaopin.com/account/login";
 
-//import image.CaptchaIdentify;
-
-public class fillNormalInputField {
-
-    private static String TARGET_URL = "https://passport.zhaopin.com/org/login";
-
-    public static void main(String[] args) throws FailingHttpStatusCodeException, MalformedURLException, IOException {
-        String imagePath = "E:\\captchaImage\\code.gif";
-        HtmlPage page = openPage(TARGET_URL);
-        saveImage(page, "checkimg", imagePath);
-
-        login(imagePath, page);
+    public static void mains(String[] args) throws Exception {
+        HtmlPage loginPage = openPage(SEARCH_PAGE_URL);
+        isNeedCaptcha(loginPage);
+        login(loginPage);
 
     }
 
-    private static void login(String imagePath, HtmlPage page) throws IOException {
+    /**
+     * 分析登录页面是否需要验证码
+     */
+    private static void isNeedCaptcha(HtmlPage loginPage) {
+
+    }
+
+    private static void login(HtmlPage page) throws Exception {
         String username = "";
         String password = "";
-        String captchaString = new CaptchaIdentify(imagePath).identify();
 
         String formId = "form1";
-        final HtmlForm loginForm = (HtmlForm) page.<HtmlForm>getElementById(formId);
+        final HtmlForm loginForm;
+        loginForm = (HtmlForm) page.<HtmlForm>getElementById(formId);
 
         fillNormalInputField("LoginName", username, loginForm);
         fillPasswordInputField("Password", password, loginForm);
-        fillNormalInputField("CheckCode", captchaString, loginForm);
 
         final HtmlButtonInput button = loginForm.getInputByName("Submit");
         final HtmlPage page2 = button.click();
-        System.out.println(page2.asText());
+        CustomFileUtil.writeFile(page2.asText(), CustomFileUtil.getRootPath());
     }
 
     public static void fillNormalInputField(String fieldName, String content, final HtmlForm loginForm) {
@@ -65,8 +63,11 @@ public class fillNormalInputField {
     }
 
     public static void saveImage(HtmlPage page, String imgId, String savePath) throws IOException {
-        HtmlImage image = (HtmlImage) page.<HtmlImage>getElementById(imgId);
+        HtmlImage image;
+        image = (HtmlImage) page.<HtmlImage>getElementById(imgId);
         File imageFile = new File(savePath);
         image.saveAs(imageFile);
     }
+
+
 }

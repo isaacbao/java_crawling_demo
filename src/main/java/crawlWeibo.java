@@ -3,12 +3,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.DomElement;
+import com.gargoylesoftware.htmlunit.html.DomNodeList;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.javascript.host.file.File;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import utils.CustomFileUtil;
+import utils.RegexUtils;
 import web.Browser;
 
 /**
@@ -19,12 +25,26 @@ public class crawlWeibo {
     private static String SEARCH_PAGE_URL = "http://s.weibo.com/weibo/";
 
     public static void main(String[] args) throws Exception {
-        Browser browser = new Browser();
+        Browser browser = new Browser(BrowserVersion.CHROME);
 
         String keyword = "咸鱼";
+        browser.getWebClient().getOptions().setCssEnabled(true);
+        browser.getWebClient().getOptions().setJavaScriptEnabled(true);
         HtmlPage searchPage = browser.openPageWithSSL(SEARCH_PAGE_URL + URLEncoder.encode(keyword, StandardCharsets
                 .UTF_8.name()));
-        String searchResult = searchPage.asText();
+
+        DomNodeList<DomElement> scripts = searchPage.getElementsByTagName("script");
+        scripts.forEach(script -> {
+            String scriptStr = StringEscapeUtils.unescapeJava(script.asXml());
+            if (scriptStr.contains("pl_weibo_direct")) {
+                String regex = "STK && STK\\.pageletM && STK\\.pageletM\\.view\\(.*\\)";
+                String json = RegexUtils.getFirstMatch(regex,scriptStr);
+                System.out.println(json);
+            }
+        });
+
+
+        String searchResult = searchPage.getBody().asXml();
         CustomFileUtil.writeFile(searchResult, CustomFileUtil.getRootPath() + java.io.File.separator + "searchResult.html");
         Document searchResultDoc = Jsoup.parse(searchResult);
         Elements divSearchFeed = searchResultDoc.select(".search_feed");

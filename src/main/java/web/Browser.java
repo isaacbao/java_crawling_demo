@@ -45,10 +45,24 @@ public class Browser {
 
     public Browser() {
         webClient = new WebClient();
+        initWebClient();
     }
 
     public Browser(BrowserVersion browser_version) {
         webClient = new WebClient(browser_version);
+        initWebClient();
+    }
+
+    /**
+     * 初始化浏览器的默认配置
+     */
+    public void initWebClient() {
+        webClient.getOptions().setTimeout(60000);
+        webClient.getOptions().setCssEnabled(false);
+        webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+        webClient.getOptions().setAppletEnabled(false);
+        webClient.getOptions().setGeolocationEnabled(false);
+        webClient.getOptions().setPopupBlockerEnabled(false);
     }
 
     /**
@@ -64,17 +78,9 @@ public class Browser {
             throws FailingHttpStatusCodeException, MalformedURLException,
             IOException {
         webClient.getOptions().setUseInsecureSSL(true);
-        webClient.getOptions().setThrowExceptionOnScriptError(false);
-        webClient.getOptions().setCssEnabled(false);
-        webClient.getOptions().setTimeout(60000);
-        webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
-        webClient.getOptions().setAppletEnabled(false);
-        webClient.getOptions().setGeolocationEnabled(false);
-        webClient.getOptions().setPopupBlockerEnabled(false);
         webClient.setJavaScriptTimeout(15000);
-        webClient.waitForBackgroundJavaScript(10000);
-        HtmlPage page = null;
-        page = webClient.getPage(targetURL);
+        webClient.waitForBackgroundJavaScript(100000);
+        HtmlPage page = webClient.getPage(targetURL);
 
         return page;
     }

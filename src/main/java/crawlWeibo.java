@@ -1,19 +1,22 @@
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.DomNodeList;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.javascript.host.file.File;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import utils.CustomFileUtil;
+import utils.JsonUtils;
 import utils.RegexUtils;
 import web.Browser;
 
@@ -28,48 +31,79 @@ public class crawlWeibo {
         Browser browser = new Browser(BrowserVersion.CHROME);
 
         String keyword = "咸鱼";
-        browser.getWebClient().getOptions().setCssEnabled(true);
-        browser.getWebClient().getOptions().setJavaScriptEnabled(true);
-        HtmlPage searchPage = browser.openPageWithSSL(SEARCH_PAGE_URL + URLEncoder.encode(keyword, StandardCharsets
-                .UTF_8.name()));
+        WebResponse searchPage = browser.getData(SEARCH_PAGE_URL + URLEncoder.encode(keyword, StandardCharsets
+                .UTF_8.name()),null);
+        String searchPageStr = searchPage.getContentAsString();
+        CustomFileUtil.writeFile(searchPageStr, CustomFileUtil.getRootPath() + java.io.File.separator + "searchPage" +
+                ".html");
 
-        DomNodeList<DomElement> scripts = searchPage.getElementsByTagName("script");
+//        DomNodeList<DomElement> scripts = searchPage.getElementsByTagName("script");
+        Elements scripts = Jsoup.parse(searchPageStr).select("script");
         scripts.forEach(script -> {
-            String scriptStr = StringEscapeUtils.unescapeJava(script.asXml());
-            if (scriptStr.contains("pl_weibo_direct")) {
-                String regex = "STK && STK\\.pageletM && STK\\.pageletM\\.view\\(.*\\)";
-                String json = RegexUtils.getFirstMatch(regex,scriptStr);
-                System.out.println(json);
+            String scriptStr = script.toString();
+            scriptStr = scriptStr.replaceAll("\\\\\"", "'").replaceAll("(\r\n|\n)", "");
+            scriptStr = String.valueOf(JsonStringEncoder.getInstance().quoteAsString(scriptStr));
+            scriptStr = StringEscapeUtils.unescapeJava(scriptStr);
+            if (scriptStr.contains("\"pid\":\"pl_weibo_direct\"")) {
+
+                String searchResult = extractSearchResult(scriptStr);
+
+                Document searchResultDoc = Jsoup.parse(searchResult);
+                Elements divSearchFeed = searchResultDoc.select(".search_feed");
+                if (!divSearchFeed.isEmpty()) {
+                    List<Weibo> weiboList = structingWeibo(searchResultDoc);
+                }
+
             }
         });
 
 
-        String searchResult = searchPage.getBody().asXml();
-        CustomFileUtil.writeFile(searchResult, CustomFileUtil.getRootPath() + java.io.File.separator + "searchResult.html");
-        Document searchResultDoc = Jsoup.parse(searchResult);
-        Elements divSearchFeed = searchResultDoc.select(".search_feed");
-        if (!divSearchFeed.isEmpty()) {
-            Elements divFeedContents = searchResultDoc.select("div.WB_cardwrap.S_bg2.clearfix");
-            List<Weibo> weiboList = new ArrayList<>();
-            divFeedContents.forEach(divFeedContent -> {
-                Elements aWriterHomePage = divFeedContent.select("a.W_texta.W_fb");
-                String writer = aWriterHomePage.attr("title");
-                String writerLink = aWriterHomePage.attr("href");
-                Elements pCommentText = divFeedContent.select("p.comment_txt");
-                String content = pCommentText.text();
-                Elements divMedia = divFeedContent.select("div.media_box");
-                Elements imgs = divMedia.select("img");
-                List<String> imageUrls = new ArrayList<String>();
-                imgs.forEach(img -> {
-                    imageUrls.add(img.attr("src"));
-                });
-                weiboList.add(new Weibo.WeiboBuilder().setContent(content).setImage(imageUrls).setWriter(writer)
-                        .setWriterLink(writerLink).createWeibo());
-            });
-            System.out.println(weiboList);
-
-        }
     }
+
+    /**
+     * 从微博返回的html页面中的javascript语句里提取搜索结果
+     *
+     * @param scriptStr js语句
+     * @return 搜索结果，提取失败则返回null
+     */
+    private static String extractSearchResult(String scriptStr) {
+        String regex = "STK && STK\\.pageletM && STK\\.pageletM\\.view\\([\\s\\S]*\\)";
+        String scriptContent = RegexUtils.getFirstMatch(regex, scriptStr);
+        String json = RegexUtils.getFirstMatch("\\{[\\s\\S]*\\}", scriptContent);
+        Map<String, Object> jsonMap = JsonUtils.readValue(json, HashMap.class);
+        System.out.println(jsonMap);
+        return jsonMap.get("html").toString();
+    }
+
+    /**
+     * 把提取到的搜索结果结构化为java对象
+     *
+     * @param searchResultDoc 搜索结果
+     * @return java对象
+     */
+    private static List<Weibo> structingWeibo(Document searchResultDoc) {
+
+        Elements divFeedContents = searchResultDoc.select("div.WB_cardwrap.S_bg2.clearfix");
+        List<Weibo> weiboList = new ArrayList<>();
+        divFeedContents.forEach(divFeedContent -> {
+            Elements aWriterHomePage = divFeedContent.select("a.W_texta.W_fb");
+            String writer = aWriterHomePage.attr("title");
+            String writerLink = aWriterHomePage.attr("href");
+            Elements pCommentText = divFeedContent.select("p.comment_txt");
+            String content = pCommentText.text();
+            Elements divMedia = divFeedContent.select("div.media_box");
+            Elements imgs = divMedia.select("img");
+            List<String> imageUrls = new ArrayList<String>();
+            imgs.forEach(img -> {
+                imageUrls.add(img.attr("src"));
+            });
+            weiboList.add(new Weibo.WeiboBuilder().setContent(content).setImage(imageUrls).setWriter(writer)
+                    .setWriterLink(writerLink).createWeibo());
+        });
+        System.out.println(weiboList);
+        return weiboList;
+    }
+
 }
 
 class Weibo {
@@ -123,7 +157,6 @@ class Weibo {
             return new Weibo(content, image, writer, writerLink);
         }
     }
-
     public String getContent() {
         return content;
     }
@@ -154,5 +187,15 @@ class Weibo {
 
     public void setWriterLink(String writerLink) {
         this.writerLink = writerLink;
+    }
+
+    @Override
+    public String toString() {
+        return "Weibo{" +
+                "content='" + content + '\'' +
+                ", writer='" + writer + '\'' +
+                ", writerLink='" + writerLink + '\'' +
+                ", imageUrls=" + imageUrls +
+                '}';
     }
 }

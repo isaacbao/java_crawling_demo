@@ -8,8 +8,6 @@ import java.util.Map;
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebResponse;
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.DomNodeList;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.jsoup.Jsoup;
@@ -28,11 +26,11 @@ public class crawlWeibo {
     private static String SEARCH_PAGE_URL = "http://s.weibo.com/weibo/";
 
     public static void main(String[] args) throws Exception {
-        Browser browser = new Browser(BrowserVersion.CHROME);
+        Browser browser = new Browser(BrowserVersion.INTERNET_EXPLORER);
 
         String keyword = "咸鱼";
         WebResponse searchPage = browser.getData(SEARCH_PAGE_URL + URLEncoder.encode(keyword, StandardCharsets
-                .UTF_8.name()),null);
+                .UTF_8.name()));
         String searchPageStr = searchPage.getContentAsString();
         CustomFileUtil.writeFile(searchPageStr, CustomFileUtil.getRootPath() + java.io.File.separator + "searchPage" +
                 ".html");

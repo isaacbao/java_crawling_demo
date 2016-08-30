@@ -8,7 +8,6 @@ import java.net.MalformedURLException;
 import java.util.List;
 
 /**
- * Created by rongyang_lu on 2016/8/25.
  */
 public class crawlZhilian {
     private static String SEARCH_PAGE_URL = "https://passport.zhaopin.com/account/login";

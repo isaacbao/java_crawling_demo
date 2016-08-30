@@ -63,10 +63,11 @@ public class Browser {
         webClient.getOptions().setAppletEnabled(false);
         webClient.getOptions().setGeolocationEnabled(false);
         webClient.getOptions().setPopupBlockerEnabled(false);
+        webClient.getOptions().setUseInsecureSSL(true);
     }
 
     /**
-     * 打开一个有SSL加密的网页（如https） Open a webpage with SSL(like https)
+     * 打开一个网页并执行js代码
      *
      * @param targetURL 目标网页的URL
      * @return 成功打开的网页
@@ -74,10 +75,9 @@ public class Browser {
      * @throws IOException
      * @throws MalformedURLException
      */
-    public HtmlPage openPageWithSSL(String targetURL)
+    public HtmlPage openPageWithJS(String targetURL)
             throws FailingHttpStatusCodeException, MalformedURLException,
             IOException {
-        webClient.getOptions().setUseInsecureSSL(true);
         webClient.setJavaScriptTimeout(15000);
         webClient.waitForBackgroundJavaScript(100000);
         HtmlPage page = webClient.getPage(targetURL);
@@ -240,25 +240,42 @@ public class Browser {
     }
 
     /**
-     * 发送post请求
-     *
+     * 发送get请求
+     * @param url 请求的url地址（也可以直接把参数拼好丢到url里，get_param直接给个null）
      * @return
-     * @throws IOException
-     * @author rongyang_lu
-     * @date 2015年8月17日 上午10:09:43
      */
-    public WebResponse getData(String url, String get_param) {
-        return getData(url, get_param, null);
+    public WebResponse getData(String url) {
+        return getData(url, null, null);
+    }
+
+
+    /**
+     * 发送get请求
+     * @param url 请求的url地址
+     * @param getParam get请求的参数
+     * @return
+     */
+    public WebResponse getData(String url, Map<String,String> getParam) {
+        String getParamStr = encodeURLData(getParam);
+        return getData(url, getParamStr, null);
     }
 
     /**
-     * @Description: TODO 发送get请求获数据
-     * @author WangYanan 347576073@qq.com
-     * @date 2016年3月28日 下午2:37:38
+     * 发送get请求
+     * @param url 请求的url地址
+     * @param getParam get请求的参数
+     * @return
      */
-    public WebResponse getData(String url, String get_param, Map<String, String> additionalHeaders) {
-        if (!CustomStringUtils.isEmpty(get_param)) {
-            url = url + "?" + get_param;
+    public WebResponse getData(String url, String getParam) {
+        return getData(url, getParam, null);
+    }
+
+    /**
+     * 发送get请求获数据
+     */
+    public WebResponse getData(String url, String getParam, Map<String, String> additionalHeaders) {
+        if (!CustomStringUtils.isEmpty(getParam)) {
+            url = url + "?" + getParam;
         }
         WebRequest request;
         WebResponse response = null;
@@ -313,10 +330,15 @@ public class Browser {
         return post_data.toString();
     }
 
-    public String encodeURLPostData(Map<String, String> raw_data) {
+    /**
+     * 生成urlencoded之后的http请求参数
+     * @param rawData 转换前的参数
+     * @return 转换失败会返回null
+     */
+    public String encodeURLData(Map<String, String> rawData) {
         StringBuilder post_data = new StringBuilder();
 
-        Set<Entry<String, String>> entry_set = raw_data.entrySet();
+        Set<Entry<String, String>> entry_set = rawData.entrySet();
         Iterator<Entry<String, String>> iterator = entry_set.iterator();
         while (iterator.hasNext()) {
             Entry<String, String> entry = iterator.next();

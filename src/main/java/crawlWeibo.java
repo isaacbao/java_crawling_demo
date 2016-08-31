@@ -35,17 +35,23 @@ public class crawlWeibo {
         CustomFileUtil.writeFile(searchPageStr, CustomFileUtil.getRootPath() + java.io.File.separator + "searchPage" +
                 ".html");
 
-//        DomNodeList<DomElement> scripts = searchPage.getElementsByTagName("script");
+
+        //新浪微博的html页面数据藏在js里，而且这些js htmlunit无法识别，只能用正则表达式提取
+        //先获得所有js
         Elements scripts = Jsoup.parse(searchPageStr).select("script");
         scripts.forEach(script -> {
             String scriptStr = script.toString();
+            // 把 \" 换成 单引号 ，把换行符干掉
             scriptStr = scriptStr.replaceAll("\\\\\"", "'").replaceAll("(\r\n|\n)", "");
+
+            // 用jackson预处理一下字符串，方便转换成java键值对
             scriptStr = String.valueOf(JsonStringEncoder.getInstance().quoteAsString(scriptStr));
+
+            // 解码unicode
             scriptStr = StringEscapeUtils.unescapeJava(scriptStr);
+
             if (scriptStr.contains("\"pid\":\"pl_weibo_direct\"")) {
-
                 String searchResult = extractSearchResult(scriptStr);
-
                 Document searchResultDoc = Jsoup.parse(searchResult);
                 Elements divSearchFeed = searchResultDoc.select(".search_feed");
                 if (!divSearchFeed.isEmpty()) {
@@ -155,6 +161,7 @@ class Weibo {
             return new Weibo(content, image, writer, writerLink);
         }
     }
+
     public String getContent() {
         return content;
     }

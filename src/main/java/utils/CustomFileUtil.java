@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.stream.Stream;
 
 /**
  * @author lou
@@ -76,6 +77,21 @@ public final class CustomFileUtil {
         }
 
         is.close();
+        os.close();
+    }
+
+    public static void saveImage(InputStream imageStream, String destinationFile)
+            throws IOException {
+        OutputStream os = new FileOutputStream(destinationFile);
+
+        byte[] b = new byte[2048];
+        int length;
+
+        while ((length = imageStream.read(b)) != -1) {
+            os.write(b, 0, length);
+        }
+
+        imageStream.close();
         os.close();
     }
 

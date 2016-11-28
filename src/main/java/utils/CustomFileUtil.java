@@ -108,7 +108,7 @@ public final class CustomFileUtil {
 //	}
 
     public static String getRootPath() {
-        return "G:" + File.separator + "javaDemoFiles" + File.separator;
+        return "javaDemoFiles" + File.separator;
     }
 
 

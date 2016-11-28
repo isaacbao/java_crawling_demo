@@ -32,6 +32,8 @@ public class crawlWeibo {
         WebResponse searchPage = browser.getData(SEARCH_PAGE_URL + URLEncoder.encode(keyword, StandardCharsets
                 .UTF_8.name()));
         String searchPageStr = searchPage.getContentAsString();
+
+        // 如果想改html的保存路径，可以直接改第二个参数，或者改CustomFileUtil.getRootPath() 这个方法
         CustomFileUtil.writeFile(searchPageStr, CustomFileUtil.getRootPath() + java.io.File.separator + "searchPage" +
                 ".html");
 
